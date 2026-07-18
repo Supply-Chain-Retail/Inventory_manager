@@ -1,6 +1,166 @@
 [
   {
     "Date": "2026-07-18",
+    "Store_ID": "Meesho-NOR-2",
+    "Product_ID": "Cat Food",
+    "Category": "Grocery",
+    "Region": "North",
+    "Inventory_Level": 81,
+    "Units_Sold": 71,
+    "Price": 751.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Meesho-EAS-1",
+    "Product_ID": "Men Check Shirt",
+    "Category": "Clothing",
+    "Region": "East",
+    "Inventory_Level": 77,
+    "Units_Sold": 18,
+    "Price": 2337.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Meesho-SOU-3",
+    "Product_ID": "Nike Air Jordan 1 Red And Black",
+    "Category": "Clothing",
+    "Region": "South",
+    "Inventory_Level": 27,
+    "Units_Sold": 17,
+    "Price": 12524.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-WES-3",
+    "Product_ID": "Nike Air Jordan 1 Red And Black",
+    "Category": "Clothing",
+    "Region": "West",
+    "Inventory_Level": 27,
+    "Units_Sold": 17,
+    "Price": 12524.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Flipkart-NOR-1",
+    "Product_ID": "Huawei Matebook X Pro",
+    "Category": "Electronics",
+    "Region": "North",
+    "Inventory_Level": 70,
+    "Units_Sold": 5,
+    "Price": 116899.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-NOR-2",
+    "Product_ID": "Nike Baseball Cleats",
+    "Category": "Clothing",
+    "Region": "North",
+    "Inventory_Level": 29,
+    "Units_Sold": 19,
+    "Price": 6679.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Amazon-SOU-2",
+    "Product_ID": "Kiwi",
+    "Category": "Grocery",
+    "Region": "South",
+    "Inventory_Level": 76,
+    "Units_Sold": 66,
+    "Price": 208.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-NOR-1",
+    "Product_ID": "Sports Sneakers Off White Red",
+    "Category": "Clothing",
+    "Region": "North",
+    "Inventory_Level": 45,
+    "Units_Sold": 17,
+    "Price": 9184.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-EAS-2",
+    "Product_ID": "Blue & Black Check Shirt",
+    "Category": "Clothing",
+    "Region": "East",
+    "Inventory_Level": 26,
+    "Units_Sold": 16,
+    "Price": 2504.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Flipkart-EAS-2",
+    "Product_ID": "Cat Food",
+    "Category": "Grocery",
+    "Region": "East",
+    "Inventory_Level": 67,
+    "Units_Sold": 57,
+    "Price": 751.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-SOU-1",
+    "Product_ID": "Nike Air Jordan 1 Red And Black",
+    "Category": "Clothing",
+    "Region": "South",
+    "Inventory_Level": 23,
+    "Units_Sold": 13,
+    "Price": 12524.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-SOU-1",
+    "Product_ID": "Puma Future Rider Trainers",
+    "Category": "Clothing",
+    "Region": "South",
+    "Inventory_Level": 68,
+    "Units_Sold": 22,
+    "Price": 7514.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Meesho-NOR-1",
+    "Product_ID": "Chanel Coco Noir Eau De",
+    "Category": "Grocery",
+    "Region": "North",
+    "Inventory_Level": 74,
+    "Units_Sold": 64,
+    "Price": 10854.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Flipkart-WES-2",
+    "Product_ID": "Red Nail Polish",
+    "Category": "Grocery",
+    "Region": "West",
+    "Inventory_Level": 79,
+    "Units_Sold": 69,
+    "Price": 751.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Amazon-SOU-2",
+    "Product_ID": "Red Lipstick",
+    "Category": "Grocery",
+    "Region": "South",
+    "Inventory_Level": 74,
+    "Units_Sold": 64,
+    "Price": 1085.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "S-EAS-2",
+    "Product_ID": "Red Nail Polish",
+    "Category": "Grocery",
+    "Region": "East",
+    "Inventory_Level": 75,
+    "Units_Sold": 4,
+    "Price": 751.0
+  },
+  {
+    "Date": "2026-07-18",
     "Store_ID": "S-WES-2",
     "Product_ID": "Powder Canister",
     "Category": "Grocery",
