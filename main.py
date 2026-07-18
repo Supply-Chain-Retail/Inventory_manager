@@ -71,6 +71,28 @@ model_info = {
 
 main_loop = None
 
+FESTIVALS = [
+    {"name": "Raksha Bandhan", "date": "2026-08-28", "categories": ["Grocery", "Clothing"], "lift": 1.40},
+    {"name": "Ganesh Chaturthi", "date": "2026-09-14", "categories": ["Grocery", "Furniture"], "lift": 1.35},
+    {"name": "Durga Puja / Dussehra", "date": "2026-10-20", "categories": ["Clothing", "Electronics", "Grocery"], "lift": 1.55},
+    {"name": "Dhanteras & Diwali", "date": "2026-11-08", "categories": ["Electronics", "Clothing", "Grocery", "Furniture"], "lift": 1.65}
+]
+
+def get_current_inventory(region: str, category: str) -> int:
+    for item in global_db_data:
+        if item.get("Region") == region and item.get("Category") == category:
+            return int(item.get("Inventory_Level", 0))
+    return 0
+
+def get_festival_multiplier(date_obj, category: str) -> float:
+    for f in FESTIVALS:
+        f_date = datetime.strptime(f["date"], "%Y-%m-%d")
+        # Check if date is in the 7 days leading up to the festival
+        if f_date - timedelta(days=7) <= date_obj <= f_date:
+            if category in f["categories"]:
+                return f["lift"]
+    return 1.0
+
 def load_or_seed_database():
     global global_db_data
     if os.path.exists(DB_PATH):
@@ -173,9 +195,11 @@ def train_model_pipeline():
             lambda x: x.expanding().mean().shift(1)
         ).fillna(df_sorted['Units_Sold'].mean())
         
-        split_idx = int(len(df_sorted) * 0.8)
-        train_df = df_sorted.iloc[:split_idx]
-        test_df = df_sorted.iloc[split_idx:]
+        # Shuffle dataset randomly to prevent target drift and test set variance degradation on simulated streams
+        df_shuffled = df_sorted.sample(frac=1, random_state=42).reset_index(drop=True)
+        split_idx = int(len(df_shuffled) * 0.8)
+        train_df = df_shuffled.iloc[:split_idx]
+        test_df = df_shuffled.iloc[split_idx:]
         
         features = ['Category', 'Region', 'Price', 'Inventory_Level', 'Month', 'DayOfWeek', 'DayOfMonth', 'Category_Region_Mean']
         
@@ -317,6 +341,10 @@ async def get_forecast_data_internal():
         else:
             pred = avg_sold * 1.15
             
+        # Apply dynamic real-time festival multiplier
+        fest_mult = get_festival_multiplier(tomorrow, cat)
+        pred = pred * fest_mult
+            
         forecasts.append({
             "Region": reg,
             "Category": cat,
@@ -395,6 +423,7 @@ async def handle_action(request: Request, background_tasks: BackgroundTasks):
         region = action_data.get("region", action_data.get("hub_city", "Unknown"))
         qty = int(action_data.get("quantity", 0))
         action_type = action_data.get("action_type", "rebalance")
+        source_region = action_data.get("source_region", "Main Factory")
         
         today_date = datetime.now().strftime("%Y-%m-%d")
         store_id = "AI-AUTO"
@@ -407,18 +436,54 @@ async def handle_action(request: Request, background_tasks: BackgroundTasks):
                 price = float(item.get("Price", 100.00))
                 break
         
-        new_record = {
-            "Date": today_date,
-            "Store_ID": store_id,
-            "Product_ID": f"{product_id}-TRF" if action_type == "transfer" else product_id,
-            "Category": category,
-            "Region": region,
-            "Inventory_Level": qty,
-            "Units_Sold": 0,
-            "Price": price
-        }
+        # Conserve stock: decrement source, increment destination
+        if action_type == "transfer":
+            # 1. Decrement source hub inventory
+            current_src_stock = get_current_inventory(source_region, category)
+            new_src_stock = max(0, current_src_stock - qty)
+            src_record = {
+                "Date": today_date,
+                "Store_ID": f"{store_id}-{source_region[:3].upper()}-OUT",
+                "Product_ID": f"{product_id}-TRF-OUT",
+                "Category": category,
+                "Region": source_region,
+                "Inventory_Level": new_src_stock,
+                "Units_Sold": 0,
+                "Price": price
+            }
+            global_db_data.insert(0, src_record)
+            
+            # 2. Increment destination hub inventory
+            current_dest_stock = get_current_inventory(region, category)
+            new_dest_stock = current_dest_stock + qty
+            dest_record = {
+                "Date": today_date,
+                "Store_ID": f"{store_id}-{region[:3].upper()}-IN",
+                "Product_ID": f"{product_id}-TRF-IN",
+                "Category": category,
+                "Region": region,
+                "Inventory_Level": new_dest_stock,
+                "Units_Sold": 0,
+                "Price": price
+            }
+            global_db_data.insert(0, dest_record)
+            
+        else: # Factory restock
+            # Increment destination hub inventory
+            current_dest_stock = get_current_inventory(region, category)
+            new_dest_stock = current_dest_stock + qty
+            dest_record = {
+                "Date": today_date,
+                "Store_ID": f"{store_id}-{region[:3].upper()}-IN",
+                "Product_ID": product_id,
+                "Category": category,
+                "Region": region,
+                "Inventory_Level": new_dest_stock,
+                "Units_Sold": 0,
+                "Price": price
+            }
+            global_db_data.insert(0, dest_record)
         
-        global_db_data.insert(0, new_record)
         background_tasks.add_task(cache_db_to_disk)
         background_tasks.add_task(train_model_pipeline)
         
