@@ -69,6 +69,8 @@ model_info = {
     "total_records": 0
 }
 
+main_loop = None
+
 def load_or_seed_database():
     global global_db_data
     if os.path.exists(DB_PATH):
@@ -242,11 +244,12 @@ def train_model_pipeline():
         
         # Broadcast update to connected clients via WebSockets
         import asyncio
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(broadcast_state_update())
-        except RuntimeError:
-            pass
+        if main_loop is not None:
+            try:
+                asyncio.run_coroutine_threadsafe(broadcast_state_update(), main_loop)
+                print("⚡ State broadcast scheduled successfully via WebSockets.")
+            except Exception as e:
+                print(f"❌ Failed to schedule broadcast: {e}")
     except Exception as ex:
         model_info["status"] = f"ERROR: Training failed ({str(ex)})"
         print(f"❌ ML Model Training failed: {ex}")
@@ -327,6 +330,9 @@ async def get_forecast_data_internal():
 
 @app.on_event("startup")
 async def startup_event():
+    global main_loop
+    import asyncio
+    main_loop = asyncio.get_running_loop()
     load_or_seed_database()
     train_model_pipeline()
 

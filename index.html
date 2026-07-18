@@ -262,6 +262,20 @@
             </div>
           </div>
 
+          <!-- LIVE TRANSIT & RESTOCK TRACKING -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-md space-y-4">
+             <h3 class="text-sm font-bold text-gray-900 flex justify-between items-center border-b border-gray-200 pb-3">
+                <span class="flex items-center gap-2">
+                   <svg class="w-4 h-4 text-teal-600 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   Active Transit & Restock Tracking
+                </span>
+                <span class="text-[10px] bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full font-mono font-bold">Simulated Real-Time</span>
+             </h3>
+             <div id="activeTransitsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p class="col-span-full text-xs text-gray-500 font-mono text-center py-4">No active shipments in transit.</p>
+             </div>
+          </div>
+
           <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
              <h3 class="text-sm font-bold text-gray-900 border-b border-gray-200 pb-3 mb-4">
                 Prediction Engine Overview
@@ -807,6 +821,7 @@
            renderFutureSalesGrid();
            fetchLiveWeatherData();
            fetchLiveSalesProducts();
+           setTimeout(restoreAutoSalesStream, 1500);
         }, 200);
       } else {
         // Fallback layout setup (don't activate maps/charts yet to avoid issues)
@@ -996,6 +1011,7 @@
       const status = document.getElementById('autoSalesStatus');
       
       if (chk.checked) {
+        sessionStorage.setItem("autoSalesActive", "true");
         console.log("⚡ Starting Real-Time Auto-Sales Simulator...");
         status.innerText = "SIMULATOR: RUNNING (Sending sales every 3s)";
         status.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-md font-mono mt-1 animate-pulse";
@@ -1074,6 +1090,7 @@
           }
         }, 3000);
       } else {
+        sessionStorage.setItem("autoSalesActive", "false");
         console.log("⚡ Stopping Real-Time Auto-Sales Simulator...");
         status.innerText = "SIMULATOR: IDLE";
         status.className = "text-[10px] bg-white/15 px-2.5 py-1 rounded-md inline-block font-mono mt-1";
@@ -1138,6 +1155,7 @@
              renderFutureSalesGrid();
              fetchLiveWeatherData();
              fetchLiveSalesProducts();
+             setTimeout(restoreAutoSalesStream, 1500);
           }, 200);
         } else {
           err.classList.remove('hidden');
@@ -1176,41 +1194,175 @@
       }
     }
 
-    async function triggerAction(type, category, qty, etaMinutes, destRegion = "South", index = null) {
+    let activeTransits = [];
+    let completedRestocks = {};
+    let trackingInterval = null;
+
+    function showAIAlert(message, duration = 3000) {
       const alertBox = document.getElementById('aiAlertBox');
       const alertText = document.getElementById('aiAlertText');
-      
-      alertText.innerText = `Processing request...`;
-      alertBox.classList.remove('hidden');
-      alertBox.classList.add('translate-y-0', 'opacity-100');
+      if (alertBox && alertText) {
+        alertText.innerText = message;
+        alertBox.classList.remove('hidden');
+        alertBox.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          alertBox.classList.add('hidden');
+        }, duration);
+      }
+    }
 
-      if (type === 'transfer' && index !== null) {
-          const btn = document.getElementById(`transferBtn-${index}`);
-          if(btn) {
-            btn.innerText = "In Transit";
-            btn.classList.replace('bg-teal-600', 'bg-emerald-600');
-            btn.disabled = true;
-          }
+    async function triggerAction(type, category, qty, etaMinutes, destRegion = "South", index = null) {
+      let resolvedDest = destRegion;
+      if (type === 'weather') {
+        const citySelect = document.getElementById('weatherCitySelect');
+        resolvedDest = citySelect ? citySelect.value.replace(" Hub", "") : "South";
       }
 
-      try {
-          const response = await fetch(`${API_BASE}/api/action`, {
+      // Check if duplicate transit already exists
+      const isDuplicate = activeTransits.some(t => t.type === type && t.category === category && t.destRegion === resolvedDest);
+      if (isDuplicate) {
+        showAIAlert("⚠️ This request is already in transit!");
+        return;
+      }
+
+      // 45m weather restock -> 15s; 120m hub transfer -> 30s
+      const durationSeconds = (type === 'weather') ? 15 : 30;
+
+      const transitId = Date.now() + Math.random().toString(36).substr(2, 9);
+      const newTransit = {
+        id: transitId,
+        type: type,
+        category: category,
+        qty: qty,
+        destRegion: resolvedDest,
+        etaMinutes: etaMinutes,
+        secondsRemaining: durationSeconds,
+        totalSeconds: durationSeconds,
+        index: index
+      };
+      activeTransits.push(newTransit);
+
+      // Force UI updates to show the "In Transit" buttons
+      calculateAITransfers();
+      const currentRain = parseFloat(document.getElementById('wxRain')?.innerText) || 0.0;
+      const currentTemp = parseFloat(document.getElementById('wxTemp')?.innerText) || 25.0;
+      const condition = document.getElementById('wxCondition')?.innerText || "Clear";
+      updateWeatherDemandTable(currentTemp, currentRain, condition);
+      renderActiveTransits();
+
+      showAIAlert(`🚀 ${type === 'weather' ? 'Factory Restock' : 'Inter-Hub Transfer'} Initialized! Qty: ${qty} x ${category} to ${resolvedDest} Hub. ETA: ${etaMinutes} mins.`);
+
+      startTrackingLoop();
+    }
+
+    function startTrackingLoop() {
+      if (trackingInterval) return;
+      
+      trackingInterval = setInterval(async () => {
+        if (activeTransits.length === 0) {
+          clearInterval(trackingInterval);
+          trackingInterval = null;
+          return;
+        }
+        
+        activeTransits.forEach(t => {
+          t.secondsRemaining--;
+        });
+        
+        const completed = activeTransits.filter(x => x.secondsRemaining <= 0);
+        
+        for (const t of completed) {
+          console.log(`🎉 Transit completed: ${t.category} to ${t.destRegion}`);
+          
+          if (t.type === 'weather') {
+            completedRestocks[`weather-${t.category}-${t.destRegion}`] = true;
+          }
+          
+          try {
+            const response = await fetch(`${API_BASE}/api/action`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action_type: type, product_category: category, region: destRegion, quantity: qty })
-          });
-          if (response.ok) {
-              console.log("✅ Database action sync successful.");
-              alertText.innerText = `${type === 'weather' ? "Restock Confirmed" : "Transfer Route Clear"}. Estimated ETA: ${etaMinutes} mins.`;
+              body: JSON.stringify({ 
+                action_type: t.type, 
+                product_category: t.category, 
+                region: t.destRegion, 
+                quantity: t.qty 
+              })
+            });
+            if (response.ok) {
+              showAIAlert(`✅ Completed: +${t.qty} ${t.category} received at ${t.destRegion} Hub!`);
               // Reload datasets to sync re-trained model and new quantities
               setTimeout(loadInventoryData, 1000);
+            }
+          } catch (err) {
+            console.warn("⚠️ API backend offline during completion:", err);
+            showAIAlert(`✅ Offline Completed: +${t.qty} ${t.category} stored locally at ${t.destRegion} Hub.`);
           }
-      } catch (err) {
-          console.warn("⚠️ API fallback active.", err);
-          alertText.innerText = `Saved locally — will sync when back online. ETA: ${etaMinutes} mins.`;
-      }
+        }
+        
+        activeTransits = activeTransits.filter(t => t.secondsRemaining > 0);
+        
+        renderActiveTransits();
+        calculateAITransfers();
+        
+        const currentRain = parseFloat(document.getElementById('wxRain')?.innerText) || 0.0;
+        const currentTemp = parseFloat(document.getElementById('wxTemp')?.innerText) || 25.0;
+        const condition = document.getElementById('wxCondition')?.innerText || "Clear";
+        updateWeatherDemandTable(currentTemp, currentRain, condition);
+        
+      }, 1000);
+    }
 
-      setTimeout(() => alertBox.classList.add('hidden'), 4000);
+    function renderActiveTransits() {
+      const container = document.getElementById('activeTransitsContainer');
+      if (!container) return;
+      
+      if (activeTransits.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-xs text-gray-500 font-mono text-center py-4">No active shipments in transit.</p>`;
+        return;
+      }
+      
+      container.innerHTML = '';
+      activeTransits.forEach(t => {
+        const percent = Math.round(((t.totalSeconds - t.secondsRemaining) / t.totalSeconds) * 100);
+        const card = document.createElement('div');
+        card.className = "bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2.5 relative overflow-hidden shadow-sm";
+        
+        const icon = t.type === 'weather' ? '🌧️' : '🚛';
+        const sourceLabel = t.type === 'weather' ? 'Main Factory' : 'Surplus Hub';
+        
+        card.innerHTML = `
+          <div class="flex justify-between items-start text-xs">
+            <div class="space-y-0.5">
+              <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-teal-50 text-teal-600 border border-teal-200 uppercase font-mono">${t.type === 'weather' ? 'restock' : 'transfer'}</span>
+              <h4 class="font-bold text-gray-900 flex items-center gap-1.5 mt-1">
+                <span>${icon}</span>
+                <span>${t.qty} x ${t.category}</span>
+              </h4>
+              <p class="text-[10px] text-gray-500 mt-1">${sourceLabel} ➔ <b class="text-teal-600">${t.destRegion} Hub</b></p>
+            </div>
+            <div class="text-right space-y-0.5 font-mono">
+              <p class="text-teal-600 font-bold">${t.secondsRemaining}s remaining</p>
+              <p class="text-[10px] text-gray-400">ETA: ${t.etaMinutes}m</p>
+            </div>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+            <div class="bg-teal-600 h-1.5 rounded-full transition-all duration-1000" style="width: ${percent}%"></div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function restoreAutoSalesStream() {
+      const active = sessionStorage.getItem("autoSalesActive") === "true";
+      const chk = document.getElementById('chkAutoSales');
+      if (chk) {
+        chk.checked = active;
+        if (active && !autoSalesInterval) {
+          toggleAutoSalesStream();
+        }
+      }
     }
 
     function run30DayFestivalRadar() {
@@ -1449,6 +1601,26 @@
       ];
 
       categories.forEach(c => {
+        const citySelect = document.getElementById('weatherCitySelect');
+        const resolvedDest = citySelect ? citySelect.value.replace(" Hub", "") : "South";
+        
+        const activeTransit = activeTransits.find(transit => 
+          transit.category === c.cat && 
+          transit.destRegion === resolvedDest && 
+          transit.type === 'weather'
+        );
+        
+        const isCompleted = completedRestocks[`weather-${c.cat}-${resolvedDest}`];
+        
+        let buttonHtml = '';
+        if (isCompleted) {
+          buttonHtml = `<button disabled class="bg-gray-200 text-gray-400 font-bold px-3 py-1 rounded text-[10px] cursor-not-allowed">Restocked</button>`;
+        } else if (activeTransit) {
+          buttonHtml = `<button disabled class="bg-emerald-600 text-white font-bold px-3 py-1 rounded text-[10px] cursor-not-allowed">In Transit (${activeTransit.secondsRemaining}s)</button>`;
+        } else {
+          buttonHtml = `<button onclick="triggerAction('weather', '${c.cat}', 500, 45)" class="bg-teal-50 hover:bg-teal-600 text-teal-600 hover:text-white border border-teal-300 px-3 py-1 rounded text-[10px] transition font-bold">${c.btnText}</button>`;
+        }
+
         const row = document.createElement('tr');
         row.className = "hover:bg-white transition";
         row.innerHTML = `
@@ -1456,9 +1628,7 @@
           <td class="py-2.5 px-3 text-gray-500 font-mono text-[11px]">${c.trigger}</td>
           <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${c.factor !== '1.00x' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-600'}">${c.factor}</span></td>
           <td class="py-2.5 px-3 text-right">
-              <button onclick="triggerAction('weather', '${c.cat}', 500, 45)" class="bg-teal-50 hover:bg-teal-600 text-teal-600 hover:text-white border border-teal-300 px-3 py-1 rounded text-[10px] transition font-bold">
-                  ${c.btnText}
-              </button>
+              ${buttonHtml}
           </td>
         `;
         tbody.appendChild(row);
@@ -1873,7 +2043,6 @@
       
       // Map current levels and forecasts for comparison
       const statusList = forecastData.map(f => {
-          // balance = inventory - projected_demand
           const balance = f.Current_Inventory - f.Projected_Demand;
           return {
               region: f.Region,
@@ -1885,10 +2054,9 @@
       });
       
       const deficits = statusList.filter(s => s.balance < 0);
-      const surpluses = statusList.filter(s => s.balance > 40); // Hubs with reasonable surplus
+      const surpluses = statusList.filter(s => s.balance > 40);
       
       deficits.forEach(def => {
-          // Find matching surplus in same category
           const match = surpluses.find(sur => sur.cat === def.cat && sur.balance > 10);
           if (match) {
               const qtyToTransfer = Math.min(Math.abs(def.balance), match.balance);
@@ -1899,11 +2067,22 @@
                       dest: def.region,
                       cat: def.cat,
                       qty: roundedQty,
-                      priority: roundedQty > 40 ? 'HIGH' : 'MEDIUM'
+                      priority: roundedQty > 40 ? 'HIGH' : 'MEDIUM',
+                      type: 'transfer'
                   });
-                  // Temporarily adjust balance to prevent double booking
                   match.balance -= qtyToTransfer;
               }
+          } else {
+              // No surplus hub has stock to spare. Recommend direct emergency factory restock!
+              const replenishQty = Math.round(Math.abs(def.balance) + 80);
+              transfers.push({
+                  source: 'Main Factory',
+                  dest: def.region,
+                  cat: def.cat,
+                  qty: replenishQty,
+                  priority: 'HIGH',
+                  type: 'weather' // restock type action
+              });
           }
       });
       
@@ -1913,18 +2092,32 @@
       }
       
       transfers.forEach((t, index) => {
+        const activeTransit = activeTransits.find(transit => 
+          transit.category === t.cat && 
+          transit.destRegion === t.dest && 
+          transit.type === t.type
+        );
+        
+        let buttonHtml = '';
+        if (activeTransit) {
+            buttonHtml = `<button disabled class="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] cursor-not-allowed">In Transit (${activeTransit.secondsRemaining}s)</button>`;
+        } else {
+            const btnLabel = t.type === 'weather' ? 'Replenish' : 'Approve';
+            buttonHtml = `<button id="transferBtn-${index}" onclick="triggerAction('${t.type}', '${t.cat}', ${t.qty}, ${t.type === 'weather' ? 45 : 120}, '${t.dest}', ${index})" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition shadow-md shadow-teal-600/10">${btnLabel}</button>`;
+        }
+
+        const originLabel = t.source === 'Main Factory' ? '🏭 Main Factory' : `${t.source} Hub`;
+        
         const row = document.createElement('tr');
         row.className = "hover:bg-white transition border-b border-gray-100 last:border-0";
         row.innerHTML = `
-          <td class="py-2.5 px-3 font-semibold text-gray-900">${t.source} Hub</td>
+          <td class="py-2.5 px-3 font-semibold text-gray-900">${originLabel}</td>
           <td class="py-2.5 px-3 font-semibold text-teal-600">${t.dest} Hub</td>
           <td class="py-2.5 px-3 font-medium text-gray-600">${t.cat}</td>
           <td class="py-2.5 px-3 text-right font-bold text-gray-800 font-mono">${t.qty}</td>
           <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${t.priority === 'HIGH' ? 'border border-rose-200 bg-rose-50 text-rose-600' : 'border border-amber-200 bg-amber-50 text-amber-600'}">${t.priority}</span></td>
           <td class="py-2.5 px-3 text-right">
-              <button id="transferBtn-${index}" onclick="triggerAction('transfer', '${t.cat}', ${t.qty}, 120, '${t.dest}', ${index})" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition shadow-md shadow-teal-600/10">
-                  Approve
-              </button>
+              ${buttonHtml}
           </td>
         `;
         tbody.appendChild(row);
@@ -1989,7 +2182,11 @@
 
     function initMap() {
       map = L.map('map').setView([20.5937, 78.9629], 5);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
       updateMapMarkers();
     }
 

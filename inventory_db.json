@@ -1,6 +1,136 @@
 [
   {
     "Date": "2026-07-18",
+    "Store_ID": "S-WES-2",
+    "Product_ID": "Powder Canister",
+    "Category": "Grocery",
+    "Region": "West",
+    "Inventory_Level": 88,
+    "Units_Sold": 1,
+    "Price": 1252.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "S-WES-1",
+    "Product_ID": "Powder Canister",
+    "Category": "Grocery",
+    "Region": "West",
+    "Inventory_Level": 84,
+    "Units_Sold": 5,
+    "Price": 1252.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Amazon-SOU-2",
+    "Product_ID": "Soft Drinks",
+    "Category": "Grocery",
+    "Region": "South",
+    "Inventory_Level": 63,
+    "Units_Sold": 53,
+    "Price": 166.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-NOR-1",
+    "Product_ID": "Blue & Black Check Shirt",
+    "Category": "Clothing",
+    "Region": "North",
+    "Inventory_Level": 30,
+    "Units_Sold": 20,
+    "Price": 2504.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-SOU-1",
+    "Product_ID": "Gigabyte Aorus Men Tshirt",
+    "Category": "Clothing",
+    "Region": "South",
+    "Inventory_Level": 71,
+    "Units_Sold": 19,
+    "Price": 2087.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-SOU-1",
+    "Product_ID": "Puma Future Rider Trainers",
+    "Category": "Clothing",
+    "Region": "South",
+    "Inventory_Level": 69,
+    "Units_Sold": 21,
+    "Price": 7514.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Flipkart-WES-1",
+    "Product_ID": "Juice",
+    "Category": "Grocery",
+    "Region": "West",
+    "Inventory_Level": 75,
+    "Units_Sold": 65,
+    "Price": 333.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Flipkart-EAS-1",
+    "Product_ID": "Asus Zenbook Pro Dual Screen Laptop",
+    "Category": "Electronics",
+    "Region": "East",
+    "Inventory_Level": 40,
+    "Units_Sold": 5,
+    "Price": 150299.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Meesho-EAS-2",
+    "Product_ID": "Potatoes",
+    "Category": "Grocery",
+    "Region": "East",
+    "Inventory_Level": 67,
+    "Units_Sold": 57,
+    "Price": 191.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Myntra-NOR-1",
+    "Product_ID": "Sports Sneakers Off White Red",
+    "Category": "Clothing",
+    "Region": "North",
+    "Inventory_Level": 46,
+    "Units_Sold": 16,
+    "Price": 9184.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Meesho-EAS-1",
+    "Product_ID": "Blue & Black Check Shirt",
+    "Category": "Clothing",
+    "Region": "East",
+    "Inventory_Level": 33,
+    "Units_Sold": 23,
+    "Price": 2504.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "Amazon-SOU-2",
+    "Product_ID": "Soft Drinks",
+    "Category": "Grocery",
+    "Region": "South",
+    "Inventory_Level": 79,
+    "Units_Sold": 69,
+    "Price": 166.0
+  },
+  {
+    "Date": "2026-07-18",
+    "Store_ID": "AI-AUTO",
+    "Product_ID": "Eggs",
+    "Category": "Grocery",
+    "Region": "South",
+    "Inventory_Level": 500,
+    "Units_Sold": 0,
+    "Price": 250.0
+  },
+  {
+    "Date": "2026-07-18",
     "Store_ID": "AI-AUTO",
     "Product_ID": "Eggs",
     "Category": "Grocery",
