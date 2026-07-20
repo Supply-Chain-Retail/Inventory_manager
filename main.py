@@ -218,52 +218,100 @@ def train_model_pipeline():
         )
         preprocessor.set_output(transform="pandas")
         
-        # Ensemble estimators
-        hgb = HistGradientBoostingRegressor(learning_rate=0.08, max_depth=4, max_iter=120, random_state=42)
+        # Dynamically evaluate and select the best algorithm matching Chapter 6 of the project report
+        from sklearn.linear_model import LinearRegression
+        from sklearn.tree import DecisionTreeRegressor
+        from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor, VotingRegressor
+        
+        try:
+            from lightgbm import LGBMRegressor
+            lgbm_avail = True
+        except ImportError:
+            lgbm_avail = False
+            
+        lr = LinearRegression()
+        dt = DecisionTreeRegressor(max_depth=6, random_state=42)
         rf = RandomForestRegressor(n_estimators=40, max_depth=6, random_state=42)
         
+        if lgbm_avail:
+            boosting = LGBMRegressor(n_estimators=100, max_depth=4, learning_rate=0.08, random_state=42, verbose=-1)
+            boosting_name = "LightGBM Regressor"
+        else:
+            boosting = HistGradientBoostingRegressor(learning_rate=0.08, max_depth=4, max_iter=120, random_state=42)
+            boosting_name = "HistGradientBoosting"
+            
         ensemble = VotingRegressor(estimators=[
-            ('hgb', hgb),
+            ('boosting', boosting),
             ('rf', rf)
         ], weights=[0.6, 0.4])
         
+        candidates = {
+            "OLS Linear Regression": lr,
+            "Decision Tree Regressor": dt,
+            "Random Forest Regressor": rf,
+            boosting_name: boosting,
+            f"Hybrid Ensemble ({boosting_name} + RF)": ensemble
+        }
+        
+        best_r2 = -float('inf')
+        best_name = None
+        best_model_regressor = None
+        best_metrics = {}
+        comparison_results = {}
+        
+        for name, regressor in candidates.items():
+            candidate_pipeline = Pipeline(steps=[
+                ('preprocessor', preprocessor),
+                ('regressor', regressor)
+            ])
+            candidate_pipeline.fit(X_train, y_train)
+            preds = candidate_pipeline.predict(X_test)
+            
+            cand_r2 = r2_score(y_test, preds)
+            cand_mae = mean_absolute_error(y_test, preds)
+            cand_rmse = np.sqrt(mean_squared_error(y_test, preds))
+            
+            comparison_results[name] = {
+                "r2": round(max(0, float(cand_r2)), 4),
+                "mae": round(float(cand_mae), 2),
+                "rmse": round(float(cand_rmse), 2)
+            }
+            
+            # Select best model based on validation set R2 score
+            if cand_r2 > best_r2:
+                best_r2 = cand_r2
+                best_name = name
+                best_model_regressor = regressor
+                best_metrics = comparison_results[name]
+                
+        # Instantiating the selected winner pipeline
         best_pipeline = Pipeline(steps=[
             ('preprocessor', preprocessor),
-            ('regressor', ensemble)
+            ('regressor', best_model_regressor)
         ])
         
-        # Train and evaluate
-        best_pipeline.fit(X_train, y_train)
-        y_pred = best_pipeline.predict(X_test)
-        
-        r2 = r2_score(y_test, y_pred)
-        mae = mean_absolute_error(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        
-        # Retrain on the entire cleaned dataset to maximize forecasting precision
+        # Train on the entire cleaned dataset to maximize forecasting precision
         X_full = df_sorted[features]
         y_full = df_sorted['Units_Sold']
         best_pipeline.fit(X_full, y_full)
         
         # Set dynamic model info
         model_info = {
-            "model_name": "Hybrid Ensemble (HGB + RF)",
+            "model_name": best_name,
             "best_params": {
-                "hgb_learning_rate": 0.08,
-                "hgb_max_depth": 4,
-                "hgb_max_iter": 120,
+                "selected_algorithm": best_name,
                 "rf_n_estimators": 40,
+                "hgb_max_iter": 120,
                 "rf_max_depth": 6,
-                "ensemble_weights": "60% HGB / 40% RF"
+                "hgb_max_depth": 4,
+                "ensemble_weights": "60% Boosting / 40% RF" if "Ensemble" in best_name else "N/A",
+                "comparison": comparison_results
             },
-            "metrics": {
-                "r2": round(max(0, float(r2)), 4),
-                "mae": round(float(mae), 2),
-                "rmse": round(float(rmse), 2)
-            },
-            "status": "ONLINE (Active)",
+            "metrics": best_metrics,
+            "status": f"ONLINE (Active - Selected {best_name})",
             "total_records": len(df_clean)
         }
+        print(f"✅ Selected Best Model: {best_name} (R2: {best_metrics['r2']})")
         print("✅ ML Model Retrained and Hyper-tuned Successfully!")
         
         # Broadcast update to connected clients via WebSockets
