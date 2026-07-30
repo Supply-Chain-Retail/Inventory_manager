@@ -805,6 +805,10 @@
     const pageSize = 10;
     let recentSearches = [];
 
+    // ==============================================================================
+    // MODULE: Geographic Coordinates Database & Regional Hub Mapping
+    // RESPONSIBLE DEVELOPER: Akash.M (Database Management & System Integration)
+    // ==============================================================================
     // 4-zone fulfillment hubs — each Indian region is served by one representative hub
     const cityCoords = {
       'South Hub': { lat: 13.0827, lon: 80.2707 },   // Chennai
@@ -1349,6 +1353,10 @@
       }
     }
 
+    // ==============================================================================
+    // MODULE: Inter-Hub Action Trigger & Transit Controller
+    // RESPONSIBLE DEVELOPERS: Akash.M (Integration Engineer) & Agalya.B (Frontend Lead)
+    // ==============================================================================
     async function triggerAction(type, category, qty, etaMinutes, destRegion = "South", index = null, sourceRegion = "Main Factory") {
       let resolvedDest = destRegion;
       if (type === 'weather') {
