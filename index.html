@@ -298,8 +298,8 @@
                 </div>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                    <p class="text-gray-500 mb-1">Demand Forecaster</p>
-                   <p class="text-purple-600 font-bold text-lg" id="dashboardModelName">Hyper-Tuned LightGBM</p>
-                   <p class="text-[10px] text-gray-400 mt-1" id="dashboardModelDesc">Optimized via GridSearchCV on historical dataset.</p>
+                   <p class="text-purple-600 font-bold text-lg" id="dashboardModelName">HistGradientBoosting Regressor</p>
+                   <p class="text-[10px] text-gray-400 mt-1" id="dashboardModelDesc">Tuned via Scikit-Learn on historical dataset.</p>
                 </div>
                 <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
                    <p class="text-emerald-600 font-bold mb-1 flex items-center gap-2">
@@ -983,14 +983,12 @@
         
         if (!loadedModel) {
             updateModelInfoUI({
-                model_name: "Hybrid Ensemble (HGB + RF)",
+                model_name: "HistGradientBoosting Regressor",
                 status: "OFFLINE (Static Demo)",
                 best_params: {
-                    rf_n_estimators: 40,
-                    hgb_max_iter: 120,
-                    rf_max_depth: 6,
-                    hgb_max_depth: 4,
-                    ensemble_weights: "60% HGB / 40% RF"
+                    learning_rate: 0.08,
+                    max_depth: 4,
+                    max_iter: 120
                 },
                 metrics: {
                     r2: 0.946,
