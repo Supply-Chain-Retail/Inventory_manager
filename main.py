@@ -37,7 +37,7 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory_db
 
 # ==============================================================================
 # MODULE: Database Management & Persistence Layer
-# RESPONSIBLE ENGINEER: Akash.M
+# RESPONSIBLE ENGINEER: Akash.M (Database Manager)
 # DESCRIPTION: Manages database initialization, e-commerce data seeding, 
 # in-memory store management, and disk JSON persistence.
 # ==============================================================================
