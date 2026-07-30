@@ -1014,24 +1014,20 @@
         }
         
         // Update hyper-parameters list
-        const bp = info.best_params;
+        const bp = info.best_params || {};
         const estEl = document.getElementById('ml-estimators');
         if (estEl) {
-            estEl.innerText = (bp.rf_n_estimators && bp.hgb_max_iter) 
-                ? `${bp.rf_n_estimators} RF / ${bp.hgb_max_iter} HGB` 
-                : (bp.n_estimators || bp.max_iter || '100');
+            estEl.innerText = bp.max_iter || '120';
         }
         
         const depthEl = document.getElementById('ml-max-depth');
         if (depthEl) {
-            depthEl.innerText = (bp.rf_max_depth && bp.hgb_max_depth) 
-                ? `${bp.rf_max_depth} RF / ${bp.hgb_max_depth} HGB` 
-                : (bp.max_depth || 'None');
+            depthEl.innerText = bp.max_depth || '4';
         }
         
         const splitEl = document.getElementById('ml-min-split');
         if (splitEl) {
-            splitEl.innerText = bp.ensemble_weights || bp.min_samples_split || 'N/A';
+            splitEl.innerText = bp.learning_rate || '0.08';
         }
         
         // Update metrics
@@ -1046,10 +1042,10 @@
         
         // Update main dashboard engine cards
         const dbName = document.getElementById('dashboardModelName');
-        if (dbName) dbName.innerText = info.model_name;
+        if (dbName) dbName.innerText = info.model_name || "HistGradientBoosting Regressor";
         
         const dbDesc = document.getElementById('dashboardModelDesc');
-        if (dbDesc) dbDesc.innerText = `Ensemble metrics: MAE = ${info.metrics.mae}, R² = ${info.metrics.r2}`;
+        if (dbDesc) dbDesc.innerText = `HistGradientBoosting metrics: MAE = ${info.metrics ? info.metrics.mae : '0.00'}, R² = ${info.metrics ? info.metrics.r2 : '0.00'}`;
     }
 
     let ws;
