@@ -1,209 +1,112 @@
-# OmniOpt AI-Predictive Logistics & Fullfillment Platform
+# OmniOpt AI — Predictive Logistics & Fulfillment Platform
 
-OmniOpt AI is an AI-powered predictive inventory management and logistics platform designed to optimize stock availability, demand forecasting, and warehouse operations across multiple regional hubs. The system leverages Artificial Intelligence, Machine Learning, and real-time analytics to predict future product demand, automate inventory replenishment, and improve supply chain efficiency.
+OmniOpt AI is an AI-powered predictive inventory management and logistics platform designed to optimize stock availability, demand forecasting, and warehouse operations across multiple regional hubs. The system leverages Artificial Intelligence, Machine Learning, and real-time WebSockets to predict future product demand, automate inventory replenishment, and improve supply chain efficiency.
 
-By combining Hybrid Ensemble Machine Learning models, real-time WebSocket communication, geographic visualization, and intelligent inventory analytics, OmniOpt AI helps businesses reduce stockouts, minimize overstocking, and improve operational decision-making.
-
----
-
-## Features
-
-## Predictive Demand Forecasting
-
-- Forecast future product demand using Machine Learning.
-- Predict inventory requirements with high accuracy.
-- Reduce stock shortages and excess inventory.
-- Improve replenishment planning.
-
-## Smart Inventory Management
-
-- Monitor inventory levels across multiple warehouses.
-- Automatically identify low-stock products.
-- Trigger inventory transfers between hubs.
-- Generate factory replenishment requests when required.
-
-## Real-Time Inventory Tracking
-
-- Live inventory updates using WebSockets.
-- Real-time stock synchronization.
-- Track inventory movement between warehouses.
-- Instant dashboard updates.
-
-## Intelligent Logistics Management
-
-- Optimize inter-hub inventory transfers.
-- Route shipments efficiently.
-- Display warehouse locations on interactive maps.
-- Monitor shipment progress in real time.
-
-## Weather-Aware Inventory Planning
-
-- Analyze weather conditions.
-- Adjust product demand using weather-based multipliers.
-- Improve seasonal inventory planning.
-
-## Interactive Dashboard
-
-- Live inventory overview.
-- Demand forecasting charts.
-- Warehouse analytics.
-- Shipment tracking.
-- Geographic inventory visualization.
-- Responsive and user-friendly interface.
+By combining **HistGradientBoosting Regressor** machine learning models, real-time WebSocket communication, geographic map visualization (Leaflet.js), and intelligent inventory analytics, OmniOpt AI helps businesses reduce stockouts, minimize overstocking, and improve operational decision-making.
 
 ---
 
-## AI Technologies
+## 🌟 Key Features
 
-- Machine Learning
-- Hybrid Ensemble Regression
-- HistGradientBoosting Regressor
-- Random Forest Regressor
-- Demand Forecasting
-- Feature Engineering
-- Inventory Analytics
-- Real-Time Prediction
-- Weather-Based Demand Analysis
+### 📈 Predictive Demand Forecasting
+- Forecast future product demand using **HistGradientBoosting Regressor** (`scikit-learn`).
+- Predict inventory requirements with high accuracy ($R^2$ scores, MAE, RMSE metrics).
+- Incorporates dynamic Indian festival season demand multipliers (Diwali, Durga Puja, Ganesh Chaturthi, Raksha Bandhan).
+- Reduces stock shortages and excess holding inventory.
+
+### 📦 Smart Inventory Management
+- Monitor stock levels across multiple regional warehouse hubs (North, South, East, West).
+- Automatically identify low-stock products and trigger AI stock rebalancing transfers.
+- Generate factory replenishment requests when regional inventory dips below safety thresholds.
+
+### ⚡ Real-Time Synchronization & WebSockets
+- Live inventory updates using **FastAPI WebSockets** without needing page refreshes.
+- Real-time stock movement synchronization between warehouses and active transit tracking.
+
+### 🗺️ Geographic Logistics & Transit Routing
+- Route shipments efficiently across regional hubs.
+- Display real-time warehouse locations on interactive Leaflet maps with OSRM routing.
 
 ---
 
-## System Architecture
+## 👥 System Modules & Team Responsibilities
+
+| System Module | Team Member | Responsibilities |
+| :--- | :--- | :--- |
+| **Integration Engineer** | **Akash.M** | Managed the overall project, integrated frontend, backend, ML, and database modules, and ensured smooth system functionality. |
+| **Frontend Development** | **Agalya.B** | Designed and developed the user interface, dashboards, charts, and responsive web pages for real-time monitoring. |
+| **Backend Development** | **Afrid Ahamed.B** | Developed REST APIs using FastAPI, handled business logic, integrated WebSockets for real-time communication, and connected frontend with ML and database modules. |
+| **ML Engineer** | **Abisheak.B** | Built demand forecasting models, performed data preprocessing, feature engineering, model training, and prediction. |
+| **Database Management** | **Akash.M** | Designed and managed the database, handled inventory and transaction data, and ensured efficient data storage and retrieval. |
+
+---
+
+## 🏗️ System Architecture
+
 ```text
 E-Commerce Platforms
 (Amazon • Flipkart • Meesho • Myntra)
           │
           ▼
-Data Collection Layer
+Data Collection & Persistence Layer (InventoryDatabase)
           │
           ▼
-Data Preprocessing Layer
+Data Preprocessing & Feature Engineering Layer
           │
           ▼
-AI Prediction Engine
- ├── Demand Forecasting
+AI Prediction Engine (DemandForecaster)
+ ├── HistGradientBoosting Regressor (Scikit-Learn)
+ ├── Seasonality & Festival Multipliers
  ├── Inventory Optimization
- ├── Weather Analysis
- ├── Stock Replenishment
- └── Logistics Optimization
+ └── Stock Replenishment
           │
           ▼
-Inventory Decision Engine
+Real-Time WebSocket Synchronization (ConnectionManager)
           │
           ▼
-Real-Time Inventory Synchronization
-          │
-          ▼
-Interactive Dashboard
-``` 
-
-## Tech Stack
-
-## Frontend
-
-- HTML5
-- Tailwind CSS
-- JavaScript
-- Chart.js
-- Leaflet.js
-
-## Backend
-
-- FastAPI
-- Python
-- Uvicorn
-- WebSockets
-
-## AI & Machine Learning
-
-- Scikit-learn
-- Pandas
-- NumPy
-- HistGradientBoosting Regressor
-- Random Forest Regressor
-- Ensemble Learning
-
-## Dataset
-
-- Multi-Platform Retail Inventory Dataset
-- Simulated E-Commerce Transaction Dataset
-
-## Development Tools
-
-- Visual Studio Code
-- Git
-- GitHub
-
----
-
-# Project Structure
- ```text
-OmniOpt AI
-│
-├── main.py
-├── requirements.txt
-├── README.md
-├── omni Dataset.csv
-├── inventory_db.json
-├── index.html
-├── Document
-├── presentation
-└── assets
+Interactive Dashboard (HTML5 • Tailwind CSS • Chart.js • Leaflet.js)
 ```
 
+---
 
-# Project Objectives
+## 🛠️ Tech Stack
 
-- Predict future inventory demand using AI.
-- Minimize stock shortages.
-- Reduce overstocking.
-- Optimize warehouse inventory.
-- Improve logistics efficiency.
-- Automate stock replenishment.
-- Enable real-time inventory monitoring.
-- Support data-driven supply chain decisions.
-- Improve operational efficiency.
-- Enhance customer satisfaction.
+### Frontend
+- **HTML5 & Vanilla JavaScript** (Zero build overhead, high-performance DOM execution)
+- **Tailwind CSS** (Responsive UI design, modern card components)
+- **Chart.js** (Visual analytics & 30-day forecast graphs)
+- **Leaflet.js** (Interactive geographic warehouse map tracking)
+
+### Backend & Object-Oriented Architecture
+- **FastAPI** (Asynchronous Python REST API framework)
+- **Uvicorn** (ASGI Web Server)
+- **WebSockets** (Real-time bi-directional streaming)
+- **Object-Oriented Design**: `InventoryDatabase`, `DemandForecaster`, `ConnectionManager`
+
+### AI & Machine Learning
+- **Scikit-learn** (`HistGradientBoostingRegressor`, `OneHotEncoder`, `ColumnTransformer`, `Pipeline`)
+- **Pandas & NumPy** (Feature engineering, rolling time-series aggregation, data cleaning)
 
 ---
 
-# Future Enhancements
+## 📂 Project Structure
 
-- Deep Learning-based demand forecasting
-- Explainable AI (XAI)
-- IoT-enabled warehouse monitoring
-- RFID-based inventory tracking
-- Cloud-native deployment
-- Mobile application
-- Multi-Agent AI warehouse management
-- ERP integration
-- Blockchain-enabled supply chain tracking
-- Predictive maintenance analytics
-
----
-
-# Contributors
-
-**OmniOpt AI Team**
-
-- Abhishek B
-- Afrid Ahamed B
-- Agalya B
-- Akash M
-- Akash M
-
-Building intelligent inventory management and predictive logistics solutions using Artificial Intelligence and Machine Learning.
+```text
+OmniOpt AI
+│
+├── main.py              # FastAPI server & Object-Oriented Application (InventoryDatabase, DemandForecaster)
+├── index.html           # Interactive Frontend UI (Tailwind CSS, Leaflet Maps, Chart.js)
+├── inventory_db.json    # Local JSON database (1,450 e-commerce records)
+├── requirements.txt     # Python dependencies (FastAPI, Scikit-learn, Pandas, Uvicorn, WebSockets)
+├── .python-version      # Python runtime version configuration (3.11.9)
+├── .gitignore           # Git ignore rule specifications
+├── README.md            # Project documentation
+├── Document/            # Project documentation (.docx)
+└── presentation/        # Project presentation slides (.pptx)
+```
 
 ---
 
-# License
+## 📜 License
 
 This project is licensed under the **MIT License**.
-
----
-
-# Vision
-
-OmniOpt AI aims to transform modern inventory management by leveraging Artificial Intelligence, Machine Learning, and real-time analytics to create a smarter, faster, and more efficient supply chain ecosystem.
-
-The platform enables organizations to forecast demand accurately, optimize warehouse inventory, automate stock replenishment, monitor logistics in real time, and make intelligent business decisions through predictive analytics. By reducing inventory costs, minimizing stockouts, and improving operational efficiency, OmniOpt AI helps businesses build a scalable and data-driven retail supply chain.
- 
