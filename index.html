@@ -1053,63 +1053,80 @@
     let ws;
     let autoSalesInterval = null;
 
-    function connectWebSocket() {
-      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      let wsHost = API_BASE.replace(/^https?:\/\//, '');
-      if (wsHost.startsWith('localhost')) {
-        wsHost = wsHost.replace('localhost', '127.0.0.1');
+    // ==============================================================================
+    // MODULE: Real-Time WebSockets Communication Client (OOP ES6 Class)
+    // RESPONSIBLE DEVELOPER: Afrid Ahamed.B & Agalya.B
+    // ==============================================================================
+    class WebSocketClientManager {
+      constructor(apiBase) {
+        this.apiBase = apiBase;
+        this.socket = null;
       }
-      const wsUrl = `${wsProtocol}//${wsHost}/ws`;
       
-      console.log(`🔌 Connecting WebSocket to: ${wsUrl}`);
-      ws = new WebSocket(wsUrl);
-      
-      ws.onopen = () => {
-        console.log("🟢 WebSocket Connected!");
-        const statusText = document.getElementById('dbStatusText');
-        const statusDot = document.getElementById('dbStatusDot');
-        if (statusText && statusDot) {
-          statusText.innerText = "ONLINE (Real-Time WS)";
-          statusText.className = "text-[10px] text-emerald-600 font-mono";
-          statusDot.className = "h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+      connect() {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        let wsHost = this.apiBase.replace(/^https?:\/\//, '');
+        if (wsHost.startsWith('localhost')) {
+          wsHost = wsHost.replace('localhost', '127.0.0.1');
         }
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type === 'update') {
-            console.log("⚡ Real-time update received via WebSocket!");
-            dataset = msg.inventory;
-            forecastData = msg.forecast;
-            filteredData = [...dataset];
-            
-            applyFilters();
-            recalculateDashboard();
-            updateChart();
-            calculateAITransfers();
-            updateModelInfoUI(msg.model_info);
+        const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+        
+        console.log(`🔌 Connecting WebSocket to: ${wsUrl}`);
+        this.socket = new WebSocket(wsUrl);
+        
+        this.socket.onopen = () => {
+          console.log("🟢 WebSocket Connected!");
+          const statusText = document.getElementById('dbStatusText');
+          const statusDot = document.getElementById('dbStatusDot');
+          if (statusText && statusDot) {
+            statusText.innerText = "ONLINE (Real-Time WS)";
+            statusText.className = "text-[10px] text-emerald-600 font-mono";
+            statusDot.className = "h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
           }
-        } catch (e) {
-          console.error("Error parsing WebSocket message:", e);
-        }
-      };
+        };
 
-      ws.onclose = () => {
-        console.warn("🔴 WebSocket disconnected. Reconnecting in 3s...");
-        const statusText = document.getElementById('dbStatusText');
-        const statusDot = document.getElementById('dbStatusDot');
-        if (statusText && statusDot) {
-          statusText.innerText = "CONNECTING (Re-connecting...)";
-          statusText.className = "text-[10px] text-amber-600 font-mono";
-          statusDot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
-        }
-        setTimeout(connectWebSocket, 3000);
-      };
-      
-      ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-      };
+        this.socket.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'update') {
+              console.log("⚡ Real-time update received via WebSocket!");
+              dataset = msg.inventory;
+              forecastData = msg.forecast;
+              filteredData = [...dataset];
+              
+              applyFilters();
+              recalculateDashboard();
+              updateChart();
+              calculateAITransfers();
+              updateModelInfoUI(msg.model_info);
+            }
+          } catch (e) {
+            console.error("Error parsing WebSocket message:", e);
+          }
+        };
+
+        this.socket.onclose = () => {
+          console.warn("🔴 WebSocket disconnected. Reconnecting in 3s...");
+          const statusText = document.getElementById('dbStatusText');
+          const statusDot = document.getElementById('dbStatusDot');
+          if (statusText && statusDot) {
+            statusText.innerText = "CONNECTING (Re-connecting...)";
+            statusText.className = "text-[10px] text-amber-600 font-mono";
+            statusDot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
+          }
+          setTimeout(() => this.connect(), 3000);
+        };
+        
+        this.socket.onerror = (err) => {
+          console.error("WebSocket error:", err);
+        };
+      }
+    }
+
+    const wsClientManager = new WebSocketClientManager(API_BASE);
+
+    function connectWebSocket() {
+      wsClientManager.connect();
     }
 
     function toggleAutoSalesStream() {
