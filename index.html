@@ -1354,8 +1354,11 @@
     }
 
     // ==============================================================================
-    // MODULE: Inter-Hub Action Trigger & Transit Controller
+    // CORE SYSTEM INTEGRATION ENGINE (Lines 1356 – 2414)
     // RESPONSIBLE DEVELOPER: Akash.M (System Integration)
+    // DESCRIPTION: Manages inter-hub action triggers, real-time transit tracking,
+    // AI stock rebalancing calculations, weather feed API integration, live sales
+    // stream transaction posting, Leaflet OSRM routing, and system data sync.
     // ==============================================================================
     async function triggerAction(type, category, qty, etaMinutes, destRegion = "South", index = null, sourceRegion = "Main Factory") {
       let resolvedDest = destRegion;
