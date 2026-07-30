@@ -1,9 +1,9 @@
 <!--
   ==============================================================================
   PROJECT: OmniOpt AI - Predictive Logistics & Fulfillment Platform
-  MODULE: Frontend Development & System Integration
-  RESPONSIBLE DEVELOPER: Agalya.B (Frontend Development)
-  INTEGRATION ENGINEER: Akash.M (System Integration)
+  PRIMARY FRONTEND LEAD: Agalya.B (Frontend Development)
+  SYSTEM INTEGRATION ENGINEER: Akash.M (System Integration)
+  REAL-TIME WEBSOCKET COLLABORATOR: Afrid Ahamed.B (Backend API Integration)
   DESCRIPTION: Designed and developed user interface, dashboards, analytics 
   charts, responsive web pages, and real-time monitoring map interface.
   ==============================================================================
@@ -1303,6 +1303,10 @@
       document.getElementById('loginBtn').disabled = false;
     }
 
+    // ==============================================================================
+    // MODULE: UI Navigation, View Switcher & Authentication
+    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Lead)
+    // ==============================================================================
     function switchView(windowId, btnEl) {
       document.querySelectorAll('.view-window').forEach(win => win.classList.remove('active'));
       document.getElementById(windowId).classList.add('active');
@@ -2388,6 +2392,10 @@
       });
     }
 
+    // ==============================================================================
+    // MODULE: Chart.js Analytics & Visual Demand Graph Engine
+    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Lead)
+    // ==============================================================================
     function updateChart() {
       if (!forecastChart) return;
       
