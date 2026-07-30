@@ -1,7 +1,7 @@
 # ==============================================================================
 # PROJECT: OmniOpt AI - Predictive Logistics & Fulfillment Platform
-# MODULE: System Architecture & Core Application Setup
-# TEAM LEAD / INTEGRATION ENGINEER: Akash.M
+# MODULE: System Architecture & Integration Setup
+# RESPONSIBLE ENGINEER: Akash.M (System Integration)
 # ==============================================================================
 
 from fastapi import FastAPI, Request, BackgroundTasks, WebSocket, WebSocketDisconnect
@@ -37,7 +37,7 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory_db
 
 # ==============================================================================
 # MODULE: Database Management & Persistence Layer
-# RESPONSIBLE ENGINEER: Akash.M (Database Manager)
+# RESPONSIBLE ENGINEER: Akash.M (Database Management)
 # DESCRIPTION: Manages database initialization, e-commerce data seeding, 
 # in-memory store management, and disk JSON persistence.
 # ==============================================================================
@@ -131,6 +131,10 @@ class InventoryDatabase:
 # RESPONSIBLE ENGINEER: Abisheak.B
 # DESCRIPTION: Manages ML pipelines, feature engineering, seasonality adjustments,
 # HistGradientBoostingRegressor model training, and dynamic demand forecasting.
+# ==============================================================================
+# ==============================================================================
+# MODULE: ML Demand Forecasting Engine
+# RESPONSIBLE ENGINEER: Abisheak.B (ML Demand Forecasting)
 # ==============================================================================
 class DemandForecaster:
     FESTIVALS = [

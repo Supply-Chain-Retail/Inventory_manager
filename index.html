@@ -3,14 +3,11 @@
   PROJECT: OmniOpt AI - Predictive Logistics & Fulfillment Platform
   
   PROJECT CONTRIBUTORS & MODULE LEADS:
-  1. Akash.M            - INTEGRATION ENGINEER (SYSTEM ARCHITECTURE LEAD)
-  2. Akash.M            - DATABASE MANAGER (DATASTORE & PERSISTENCE LEAD)
-  3. Agalya.B           - FRONTEND DEVELOPMENT LEAD (UI, MAPS & CHARTS)
-  4. Afrid Ahamed.B     - BACKEND API DEVELOPMENT & WEBSOCKETS LEAD
-  5. Abisheak.B         - MACHINE LEARNING ENGINEER (DEMAND FORECASTING)
-  
-  DESCRIPTION: Integrated Predictive Logistics Platform featuring real-time WebSockets,
-  Leaflet geographic map tracking, Chart.js analytics, and HistGradientBoosting ML.
+  1. Akash.M            - System Integration
+  2. Agalya.B           - Frontend Development
+  3. Afrid Ahamed.B     - Backend Development
+  4. Abisheak.B         - ML Demand Forecasting
+  5. Akash.M            - Database Management
   ==============================================================================
 -->
 <!DOCTYPE html>
@@ -810,7 +807,7 @@
 
     // ==============================================================================
     // MODULE: Geographic Coordinates Database & Regional Hub Mapping
-    // RESPONSIBLE DEVELOPER: Akash.M (Integration Engineer)
+    // RESPONSIBLE DEVELOPER: Akash.M (System Integration)
     // ==============================================================================
     // 4-zone fulfillment hubs — each Indian region is served by one representative hub
     const cityCoords = {
@@ -884,7 +881,7 @@
 
     // ==============================================================================
     // MODULE: Database Records Sync & Inventory Store Loading
-    // RESPONSIBLE DEVELOPER: Akash.M (Integration Engineer - System Data Sync)
+    // RESPONSIBLE DEVELOPER: Akash.M (Database Management)
     // ==============================================================================
     async function loadInventoryData() {
         let loadedFromBackend = false;
@@ -1016,7 +1013,7 @@
 
     // ==============================================================================
     // MODULE: ML Model Metrics & Forecasting UI Formatter
-    // RESPONSIBLE DEVELOPER: Abisheak.B (ML Engineer)
+    // RESPONSIBLE DEVELOPER: Abisheak.B (ML Demand Forecasting)
     // ==============================================================================
     function updateModelInfoUI(info) {
         if (!info) return;
@@ -1073,7 +1070,7 @@
 
     // ==============================================================================
     // MODULE: Real-Time WebSockets Communication Client (OOP ES6 Class)
-    // RESPONSIBLE DEVELOPER: Afrid Ahamed.B & Agalya.B
+    // RESPONSIBLE DEVELOPER: Afrid Ahamed.B (Backend Development)
     // ==============================================================================
     class WebSocketClientManager {
       constructor(apiBase) {
@@ -1323,7 +1320,7 @@
 
     // ==============================================================================
     // MODULE: UI Navigation, View Switcher & Authentication
-    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Lead)
+    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Development)
     // ==============================================================================
     function switchView(windowId, btnEl) {
       document.querySelectorAll('.view-window').forEach(win => win.classList.remove('active'));
@@ -1358,7 +1355,7 @@
 
     // ==============================================================================
     // MODULE: Inter-Hub Action Trigger & Transit Controller
-    // RESPONSIBLE DEVELOPERS: Akash.M (Integration Engineer) & Agalya.B (Frontend Lead)
+    // RESPONSIBLE DEVELOPER: Akash.M (System Integration)
     // ==============================================================================
     async function triggerAction(type, category, qty, etaMinutes, destRegion = "South", index = null, sourceRegion = "Main Factory") {
       let resolvedDest = destRegion;
@@ -2416,7 +2413,7 @@
 
     // ==============================================================================
     // MODULE: Chart.js Analytics & Visual Demand Graph Engine
-    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Lead)
+    // RESPONSIBLE DEVELOPER: Agalya.B (Frontend Development)
     // ==============================================================================
     function updateChart() {
       if (!forecastChart) return;
